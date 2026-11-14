@@ -1,0 +1,17 @@
+<div class="wrap">
+  @if (errors() === 0 && warnings() === 0) {
+    <button nz-button class="ok" type="button" disabled>
+      <nz-icon nzType="check-circle" nzTheme="fill" /> File is OK
+    </button>
+  }
+  @if (warnings() > 0) {
+    <button nz-button class="warn" type="button" (click)="showWarnings.emit()">
+      <nz-icon nzType="warning" nzTheme="fill" /> Warnings ({{ warnings() }})
+    </button>
+  }
+  @if (errors() > 0) {
+    <button nz-button nzDanger type="button" (click)="showErrors.emit()">
+      <nz-icon nzType="close-circle" nzTheme="fill" /> Errors ({{ errors() }})
+    </button>
+  }
+</div>

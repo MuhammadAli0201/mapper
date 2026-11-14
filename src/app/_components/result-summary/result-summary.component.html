@@ -1,0 +1,22 @@
+<nz-card nzTitle="Result">
+  <div nz-row [nzGutter]="[16, 16]">
+    @for (s of stats(); track s[0]) {
+      <div nz-col [nzXs]="12" [nzMd]="6">
+        <nz-statistic [nzTitle]="s[0]" [nzValue]="s[1]" />
+      </div>
+    }
+  </div>
+
+  <nz-table #tbl [nzData]="result().byZoneUnit" [nzFrontPagination]="false" nzSize="small" class="tbl">
+    <thead><tr><th>Zone</th><th>Zone ID</th><th>Unit</th><th>Rows</th></tr></thead>
+    <tbody>
+      @for (r of tbl.data; track $index) {
+        <tr><td>{{ r.zone }}</td><td>{{ r.zoneId }}</td><td>{{ r.unit }}</td><td>{{ r.count }}</td></tr>
+      }
+    </tbody>
+  </nz-table>
+
+  <button nz-button nzType="primary" nzSize="large" type="button" (click)="download.emit()">
+    <nz-icon nzType="download" /> Download {{ result().fileName }}
+  </button>
+</nz-card>

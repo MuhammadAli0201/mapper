@@ -1,0 +1,49 @@
+<div class="page">
+  <h2>Jurisdiction Mapper</h2>
+  <p class="sub">Upload the jurisdiction file and the registrations file. UNIT and ZONE are filled in from PERSONAL_ADDRESS. Everything stays in your browser.</p>
+
+  <div nz-row [nzGutter]="16">
+    <div nz-col [nzXs]="24" [nzMd]="12">
+      <app-file-card
+        title="1. Jurisdiction file"
+        hint="Workbook containing the JURS A grid"
+        [loading]="loadingJur()" [loaded]="!!jur()"
+        [fileName]="jur()?.fileName ?? ''" [summary]="jurSummary()"
+        [errors]="jur()?.errorCount ?? 0" [warnings]="jur()?.warningCount ?? 0"
+        (fileSelected)="onJurFile($event)"
+        (showErrors)="openIssues('jur', 'error')"
+        (showWarnings)="openIssues('jur', 'warning')" />
+    </div>
+    <div nz-col [nzXs]="24" [nzMd]="12">
+      <app-file-card
+        title="2. Registrations file"
+        hint="Sheet with a PERSONAL_ADDRESS column"
+        [loading]="loadingReg()" [loaded]="!!reg()"
+        [fileName]="reg()?.fileName ?? ''" [summary]="regSummary()" [infos]="regInfos()"
+        [errors]="reg()?.errorCount ?? 0" [warnings]="reg()?.warningCount ?? 0"
+        (fileSelected)="onRegFile($event)"
+        (showErrors)="openIssues('reg', 'error')"
+        (showWarnings)="openIssues('reg', 'warning')" />
+    </div>
+  </div>
+
+  <div class="actions">
+    <button nz-button nzType="primary" nzSize="large" type="button"
+            [disabled]="!canProcess()" [nzLoading]="processing()" (click)="process()">
+      <nz-icon nzType="play-circle" /> Process
+    </button>
+    @if (!canProcess() && !processing()) {
+      <span class="reason">{{ blockReason() }}</span>
+    }
+  </div>
+
+  @if (processing()) {
+    <nz-progress [nzPercent]="progress()" />
+  }
+
+  @if (result(); as r) {
+    <app-result-summary [result]="r" (download)="download()" />
+  }
+
+  <app-issues-drawer [(open)]="drawerOpen" [title]="drawerTitle()" [issues]="drawerIssues()" />
+</div>

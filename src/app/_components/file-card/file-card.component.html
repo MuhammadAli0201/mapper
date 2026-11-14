@@ -1,0 +1,22 @@
+<nz-card [nzTitle]="title()">
+  <nz-upload nzType="drag" [nzMultiple]="false" [nzShowUploadList]="false" [nzAccept]="accept" [nzBeforeUpload]="beforeUpload">
+    <p class="ant-upload-drag-icon"><nz-icon nzType="inbox" /></p>
+    <p class="ant-upload-text">Click or drag an .xlsx file here</p>
+    <p class="ant-upload-hint">{{ hint() }}</p>
+  </nz-upload>
+
+  @if (loading()) {
+    <div class="state"><nz-spin nzSimple /> Reading and validating...</div>
+  } @else if (loaded()) {
+    <div class="state">
+      <strong>{{ fileName() }}</strong>
+      <div class="summary">{{ summary() }}</div>
+      <app-status-buttons
+        [errors]="errors()" [warnings]="warnings()"
+        (showErrors)="showErrors.emit()" (showWarnings)="showWarnings.emit()" />
+      @for (i of infos(); track $index) {
+        <nz-alert class="info" nzType="info" nzShowIcon [nzMessage]="i" />
+      }
+    </div>
+  }
+</nz-card>
