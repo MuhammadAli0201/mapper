@@ -5,13 +5,13 @@ import { JurisdictionAnalysisDto } from '../_dtos/analysis.dto';
 import { Issue, Severity } from '../_models/issue.model';
 import { JurisdictionEntry, UnitColumn, ZoneInfo } from '../_models/jurisdiction.model';
 import {
-  ALLOWED_CHARS, EXPECTED_ZONE_IDS, FIRST_DATA_ROW, HEADER_ROW, NEAR_CROSS_UNIT,
+  ALLOWED_CHARS, FIRST_DATA_ROW, HEADER_ROW, NEAR_CROSS_UNIT,
   NEAR_SAME_UNIT, SHEET_NAME, UNIT_ROW
 } from '../_utils/constants';
 import { cellToText, colLetter } from '../_utils/excel.util';
 import { finalize } from '../_utils/issue.util';
 import { similarity } from '../_utils/similarity.util';
-import { normBody, placeKey, splitCity } from '../_utils/text.util';
+import { normBody, placeKey } from '../_utils/text.util';
 
 type AddFn = (severity: Severity, code: string, where: string, message: string) => void;
 interface Line { zone: string; zoneId: number; unit: number; cell: string; body: string; }
@@ -85,7 +85,6 @@ export class JurisdictionService {
           }
           const body = normBody(m ? l.slice(m[0].length) : l.replace(/^\d+\)\s*/, ''));
           if (!ALLOWED_CHARS.test(body)) add('error', 'E_CHARS', addr, `Unexpected characters: "${body}"`);
-          if (!splitCity(body).city) add('error', 'E_CITY', addr, `Line does not end with a known city: "${body}"`);
           bodies.add(body);   // identical lines inside one cell collapse silently
         }
         if (multi && (missingPrefix || seq.some((n, i) => n !== i + 1) || seq.length !== nonEmpty.length)) {
@@ -124,8 +123,7 @@ export class JurisdictionService {
     for (const l of lines) {
       const key = `${l.zone}|${l.unit}|${l.body}`;
       if (entryMap.has(key)) continue;
-      const { name, city } = splitCity(l.body);
-      entryMap.set(key, { zone: l.zone, zoneId: l.zoneId, unit: l.unit, cell: l.cell, address: l.body, name, city });
+      entryMap.set(key, { zone: l.zone, zoneId: l.zoneId, unit: l.unit, cell: l.cell, address: l.body });
     }
 
     return result({
@@ -180,12 +178,6 @@ export class JurisdictionService {
       }
       if (seen.has(z.id)) add('error', 'E_ZONE_ID_DUP', z.where, `ZONE_ID ${z.id} is used by ${seen.get(z.id)} and ${z.name}`);
       else seen.set(z.id, z.name);
-      const expected = EXPECTED_ZONE_IDS[z.name];
-      if (expected === undefined) {
-        add('error', 'E_ZONE_ID_VALUE', z.where, `Zone ${z.name} is not one of ${Object.keys(EXPECTED_ZONE_IDS).join(', ')}`);
-      } else if (expected !== z.id) {
-        add('error', 'E_ZONE_ID_VALUE', z.where, `${z.name} has ZONE_ID ${z.id}, expected ${expected}`);
-      }
     }
 
     const units: UnitColumn[] = [];
@@ -205,7 +197,7 @@ export class JurisdictionService {
     for (const l of lines) {
       let p = byCell.get(l.cell);
       if (!p) { p = { zone: l.zone, unit: l.unit, cell: l.cell, label: l.body, names: [] }; byCell.set(l.cell, p); }
-      const n = splitCity(l.body).name.replace(/[^A-Z0-9]/g, '');
+      const n = l.body.replace(/[^A-Z0-9]/g, '');
       p.names.push({ n, d: (n.match(/\d+/g) ?? []).join(',') });
     }
     const places = [...byCell.values()];

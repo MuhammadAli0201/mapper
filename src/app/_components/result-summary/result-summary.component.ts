@@ -23,7 +23,7 @@ export class ResultSummaryComponent {
       ['Rows processed', r.total],
       ['Exact', r.exact],
       ['Phrase', r.phrase],
-      ['City only', r.city],
+      ['All words', r.allWords],
       ['No match (left empty)', r.none],
       ['Needs review (left empty)', r.review],
       ['Blank address', r.blank]

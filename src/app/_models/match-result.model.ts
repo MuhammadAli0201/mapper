@@ -1,4 +1,4 @@
-export type MatchTier = 'EXACT' | 'PHRASE' | 'CITY' | 'NONE' | 'REVIEW';
+export type MatchTier = 'EXACT' | 'PHRASE' | 'ALL_WORDS' | 'NONE' | 'REVIEW';
 
 export interface MatchResult {
   tier: MatchTier;
