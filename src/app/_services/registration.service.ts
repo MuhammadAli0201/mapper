@@ -5,7 +5,7 @@ import { MatcherService } from './matcher.service';
 import { RegistrationAnalysisDto } from '../_dtos/analysis.dto';
 import { ProcessResultDto, UnitCount } from '../_dtos/process-result.dto';
 import { Issue } from '../_models/issue.model';
-import { REG_ADDRESS_HEADER, REG_UNIT_HEADER, REG_ZONE_HEADER, ZONE_NAME_BY_ID } from '../_utils/constants';
+import { REG_ADDRESS_HEADER, REG_UNIT_HEADER, REG_ZONE_HEADER } from '../_utils/constants';
 import { cellToText } from '../_utils/excel.util';
 import { finalize } from '../_utils/issue.util';
 
@@ -69,7 +69,7 @@ export class RegistrationService {
     if (!unitCol) unitCol = addHeader(REG_UNIT_HEADER);
     if (!zoneCol) zoneCol = addHeader(REG_ZONE_HEADER);
 
-    const stat = { total: 0, blank: 0, exact: 0, phrase: 0, city: 0, none: 0, review: 0 };
+    const stat = { total: 0, blank: 0, exact: 0, phrase: 0, allWords: 0, none: 0, review: 0 };
     const counts = new Map<string, number>();
     const last = ws.rowCount;
     const CHUNK = 500;
@@ -92,7 +92,7 @@ export class RegistrationService {
         switch (m.tier) {
           case 'EXACT': stat.exact++; break;
           case 'PHRASE': stat.phrase++; break;
-          case 'CITY': stat.city++; break;
+          case 'ALL_WORDS': stat.allWords++; break;
           case 'REVIEW': stat.review++; break;
           default: stat.none++;
         }
@@ -107,7 +107,7 @@ export class RegistrationService {
 
     const byZoneUnit: UnitCount[] = [...counts].map(([k, count]) => {
       const [zoneId, unit] = k.split('|').map(Number);
-      return { zoneId, zone: ZONE_NAME_BY_ID[zoneId] ?? String(zoneId), unit, count };
+      return { zoneId, zone: String(zoneId), unit, count };
     }).sort((x, y) => x.zoneId - y.zoneId || x.unit - y.unit);
 
     const buf = await ws.workbook.xlsx.writeBuffer();

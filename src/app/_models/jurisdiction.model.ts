@@ -20,6 +20,4 @@ export interface JurisdictionEntry {
   unit: number;
   cell: string;
   address: string;   // full normalised line, e.g. "NISAR COLONY FAISALABAD"
-  name: string;      // without city
-  city: string;
 }

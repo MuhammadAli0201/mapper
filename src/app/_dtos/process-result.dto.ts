@@ -10,7 +10,7 @@ export interface ProcessResultDto {
   blank: number;      // rows with an empty address (UNIT/ZONE cleared)
   exact: number;
   phrase: number;
-  city: number;
+  allWords: number;
   none: number;
   review: number;
   byZoneUnit: UnitCount[];
